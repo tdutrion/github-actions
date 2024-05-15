@@ -1,8 +1,0 @@
-name: run on every push
-on: [push]
-jobs:
-  basic_example:
-    runs-on: ubuntu-24.04
-    steps:
-      - name: Very simple example
-        run: echo 'ok' 
