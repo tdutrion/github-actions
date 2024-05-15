@@ -10,11 +10,18 @@ on:
       - 'hotfix/**'
       - 'release/**'
       - 'test/**'
+    paths:
+      - backend/*
+      - .github/workflows/*
 jobs:
   install:
     runs-on: ubuntu-24.04
     steps:
       - uses: actions/checkout@v4
+        with:
+          sparse-checkout: |
+              backend/
+          sparse-checkout-cone-mode: false
       - name: Setup PHP with PECL extension
         uses: shivammathur/setup-php@v2
         with:

@@ -3,6 +3,9 @@ on:
     push:
         tags:
           - 'v*'
+        paths:
+          - backend/*
+          - .github/workflows/*
 
 env:
     IMAGE_NAME: backend
@@ -13,6 +16,10 @@ jobs:
     permissions: write-all
     steps:
       - uses: actions/checkout@v4
+        with:
+            sparse-checkout: |
+                backend/
+            sparse-checkout-cone-mode: false
       - name: Build image
         run: docker build --file backend/build/Dockerfile --tag $IMAGE_NAME backend/
       - name: Log in to registry
