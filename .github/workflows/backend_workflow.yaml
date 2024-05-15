@@ -1,7 +1,7 @@
 name: Backend workflow
 on: [push]
 jobs:
-  all_at_once:
+  install:
     runs-on: ubuntu-24.04
     steps:
       - uses: actions/checkout@v4
@@ -30,3 +30,40 @@ jobs:
             --no-interaction \
             --optimize-autoloader \
             --prefer-dist
+      - name: Cache files
+        uses: actions/cache/save@v4
+        with:
+          path: backend/
+          key: project-files-${{ github.run_id }}
+  static-analysis:
+    needs: [install]
+    runs-on: ubuntu-24.04
+    steps:
+      - name: Setup PHP with PECL extension
+        uses: shivammathur/setup-php@v2
+        with:
+          php-version: '8.3'
+          extensions: mbstring, intl
+      - name: Restore cached files
+        uses: actions/cache/restore@v4
+        with:
+          path: backend/
+          key: project-files-${{ github.run_id }}
+      - name: static analysis
+        run: php backend/vendor/bin/phpstan --configuration=backend/phpstan.dist.neon
+  unit-tests:
+    needs: [install]
+    runs-on: ubuntu-24.04
+    steps:
+      - name: Setup PHP with PECL extension
+        uses: shivammathur/setup-php@v2
+        with:
+          php-version: '8.3'
+          extensions: mbstring, intl
+      - name: Restore cached files
+        uses: actions/cache/restore@v4
+        with:
+          path: backend/
+          key: project-files-${{ github.run_id }}
+      - name: static analysis
+        run: php backend/bin/phpunit --configuration backend/phpunit.xml.dist
