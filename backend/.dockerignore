@@ -1,0 +1,5 @@
+/config/packages/dev
+/config/packages/test
+/.env
+/.env*
+/vendor

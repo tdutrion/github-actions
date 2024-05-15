@@ -1,4 +1,4 @@
-name: Backend workflow
+name: Backend test workflow
 on:
   push:
     branches:
