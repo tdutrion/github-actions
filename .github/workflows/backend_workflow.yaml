@@ -1,5 +1,15 @@
 name: Backend workflow
-on: [push]
+on:
+  push:
+    branches:
+      - 'main'
+      - 'bugfix/**'
+      - 'chore/**'
+      - 'docs/**'
+      - 'feature/**'
+      - 'hotfix/**'
+      - 'release/**'
+      - 'test/**'
 jobs:
   install:
     runs-on: ubuntu-24.04
