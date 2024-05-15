@@ -1,0 +1,32 @@
+name: Backend workflow
+on: [push]
+jobs:
+  all_at_once:
+    runs-on: ubuntu-24.04
+    steps:
+      - uses: actions/checkout@v4
+      - name: Setup PHP with PECL extension
+        uses: shivammathur/setup-php@v2
+        with:
+          php-version: '8.3'
+          extensions: mbstring, intl
+      - name: Get composer cache directory
+        id: composer-cache-2
+        run: ls -la
+      - name: Get composer cache directory
+        id: composer-cache
+        run: echo "dir=$(composer --working-dir=backend/ config cache-files-dir)" >> $GITHUB_OUTPUT
+      - name: Cache dependencies
+        uses: actions/cache@v4
+        with:
+          path: ${{ steps.composer-cache.outputs.dir }}
+          key: ${{ runner.os }}-composer-${{ hashFiles('**/composer.lock') }}
+          restore-keys: ${{ runner.os }}-composer-
+      - name: Install dependencies
+        run: |
+          composer --working-dir=backend/ install \
+            --audit \
+            --classmap-authoritative \
+            --no-interaction \
+            --optimize-autoloader \
+            --prefer-dist
