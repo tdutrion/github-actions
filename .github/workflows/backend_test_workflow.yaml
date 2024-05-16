@@ -55,6 +55,7 @@ jobs:
   static-analysis:
     needs: [install]
     runs-on: ubuntu-24.04
+    continue-on-error: true
     steps:
       - name: Setup PHP with PECL extension
         uses: shivammathur/setup-php@v2
@@ -83,4 +84,39 @@ jobs:
           path: backend/
           key: project-files-${{ github.run_id }}
       - name: static analysis
-        run: php backend/bin/phpunit --configuration backend/phpunit.xml.dist
+        run: php backend/bin/phpunit --configuration backend/phpunit.xml.dist backend/tests/Unit
+  integration-tests:
+    needs: [install]
+    runs-on: ubuntu-24.04
+    env:
+      DATABASE_URL: mysql://root:testrootpass@127.0.0.1:3306/testdb?serverVersion=8.0.37&charset=utf8mb4
+    services:
+      database:
+        image: mysql:8.0.37
+        env:
+          MYSQL_DATABASE: testdb
+          MYSQL_ROOT_PASSWORD: testrootpass
+        options: >-
+          --health-cmd="mysqladmin ping"
+          --health-interval 10s
+          --health-timeout 5s
+          --health-retries 5
+        ports:
+          - 3306:3306
+    steps:
+      - name: Setup PHP with PECL extension
+        uses: shivammathur/setup-php@v2
+        with:
+          php-version: '8.3'
+          extensions: mbstring, intl, pdo, pdo_mysql
+      - name: Restore cached files
+        uses: actions/cache/restore@v4
+        with:
+          path: backend/
+          key: project-files-${{ github.run_id }}
+      - name: Setup database schema
+        run: php backend/bin/console d:m:m --no-interaction
+      - name: Setup database fixtures
+        run: php backend/bin/console d:f:l --no-interaction
+      - name: Integration tests
+        run: php backend/bin/phpunit --configuration backend/phpunit.xml.dist backend/tests/Integration

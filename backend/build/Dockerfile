@@ -16,7 +16,8 @@ ENV APP_ENV prod
 ENV DEBIAN_FRONTEND noninteractive
 ENV PROJECT_DIR /var/www/project
 WORKDIR $PROJECT_DIR
-RUN sed -i "s|DocumentRoot /var/www/html|DocumentRoot $PROJECT_DIR/public|" /etc/apache2/sites-available/000-default.conf \
+RUN docker-php-ext-install pdo pdo_mysql \
+ && sed -i "s|DocumentRoot /var/www/html|DocumentRoot $PROJECT_DIR/public|" /etc/apache2/sites-available/000-default.conf \
  && cp /usr/local/etc/php/php.ini-production /usr/local/etc/php/php.ini \
  && sed -i "s/variables_order = \"GPCS\"/variables_order = \"EGPCS\"/g" /usr/local/etc/php/php.ini \
  && sed -i "s/expose_php = On/expose_php = Off/g" /usr/local/etc/php/php.ini \
